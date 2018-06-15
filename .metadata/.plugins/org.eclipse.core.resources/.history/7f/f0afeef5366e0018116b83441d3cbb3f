@@ -1,0 +1,12 @@
+import java.security.PublicKey;
+
+public class SpeedKey {
+	private float speed;
+	private PublicKey pub;
+	
+	public SpeedKey(float speed, PublicKey pub) {
+		this.speed = speed;
+		this.pub = pub;
+	}
+	
+}

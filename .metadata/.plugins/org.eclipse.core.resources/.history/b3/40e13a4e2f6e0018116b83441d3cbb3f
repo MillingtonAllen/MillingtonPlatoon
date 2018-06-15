@@ -1,0 +1,7 @@
+
+public class SpeedKey {
+	private float speed;
+	private PublicKey pub;
+	
+	
+}

@@ -1,0 +1,215 @@
+import java.awt.geom.Point2D;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.util.Calendar;
+import java.util.Random;
+
+public class PlatoonMember {
+	
+	public final double GPSMILES = 69.096;
+	public final int MILISECONDSINHOUR = 3600000;
+	
+	// TODO initialize server key
+	// Server's public key should be known by all members in
+	// platoon.
+	private PublicKey platoonPublicKey;
+	
+	boolean defaultValue = true;
+	
+	private PrivateKey priv;
+	private PublicKey pub;
+	
+	Point2D coordOld;
+	long timeOld;
+	
+	Point2D coordCurrent;
+	long timeCurrent;
+	
+	
+	/* To attain confidentiality and integrity, we assume that
+	 * all exchanged data among vehicles use the shared secret
+	 * key as well the public key cryptography. */
+	
+	// What hashing algorythm did you have in mind?
+	// TODO Change to stronger Algorythm
+	
+	// OUT to SERVER
+	// encode with car's privateKey
+	// Server distributes Platoon Public key via Public Key -
+	// Handshaking - TSL communication?
+	
+	// IN to server from car
+	// decode using car's public key
+	
+	// Server to Car
+	// Encrypts using platoon's private key
+	
+	// Car from server
+	// decrypts using Platoon's public key
+	
+	// Cars do not talk to each other.
+	
+	// TODO
+	// Going to assume that keys are generated rather than
+	// loaded from a file. Need to research.
+	// Assuming that generating is the better way to go for
+	// variability for now
+	// https://docs.oracle.com/javase/tutorial/security/apisign/enhancements.html
+	
+	/** Creates a new Platoon Member For Now, assume platoon
+	 * leader will be an extension of PlatoonMember Not sure if
+	 * Platoon Leader is really even needed. Perhaps entirely
+	 * server-side differentiation */
+	public PlatoonMember() {
+		// TODO Delete me after initializing server public key
+		platoonPublicKey = null;
+		makeKeys();
+		updateGPS();
+		
+		// Well, I learned something new... Must initialize the
+		// Point2D in this manner
+		Point2D coordOld = new Point2D.Double();
+		Point2D coordCurrent = new Point2D.Double();
+		
+	}
+	
+	/** Sets the speed of the vehicle. GPS based unless Android
+	 * Auto supports direct speed polling (doubtful). */
+	private void updateGPS() {
+		
+		//Save current as old
+		coordOld = coordCurrent;
+		timeOld = timeCurrent;
+		
+		
+		// Poll GPS
+		coordCurrent = pollGPS();
+		timeCurrent = Calendar.getInstance().getTimeInMillis();
+		
+	}
+	
+	/** Makes public and private keys. Maybe move to own static
+	 * class? Not that Java supports static classes very well...
+	 * Doable though. I don't think blockchain needs direct
+	 * access to this method, so I may not need to separate
+	 * it. */
+	private void makeKeys() {
+		// TODO Auto-generated method stub
+		try {
+			// (Algorithm, Provider)
+			KeyPairGenerator keyGen = KeyPairGenerator
+					.getInstance("DSA", "SUN");
+			
+			// (Algorithm, Provider)
+			// SecureRandom random =
+			// SecureRandom.getInstance("SHA1PRNG", "SUN");
+			SecureRandom random = SecureRandom.getInstanceStrong();
+			
+			// (Keybit length, seed?)
+			keyGen.initialize(1024, random);
+			
+			KeyPair pair = keyGen.generateKeyPair();
+			priv = pair.getPrivate();
+			pub = pair.getPublic();
+			
+		}
+		catch (Exception e) {
+			System.out.println(e);
+		}
+		
+	}
+	
+	// TODO Poll SERVER Database via network request
+	public void requestPK(PlatoonMember otherCar) {
+		
+	}
+	
+	public PublicKey getPublicKey() {
+		return pub;
+	}
+	
+	// verify public key with database / server
+	private boolean verifyKey(long key) {
+		// TODO
+		
+		return defaultValue;
+	}
+	
+	/** Requests the Server to join a platoon. If the car is not
+	 * near a platoon, the server creates a new platoon with
+	 * this car as the platoon leader.
+	 * 
+	 * @return true if completed. */
+	private boolean joinPlatoon() {
+		// SERVER Look into GEOTOOLS for GPS calculations
+		
+		// Ask Server for Local Cars by sending GPS coordinates
+		// Server responds with nearest car going in the same
+		// direction
+		// Vector projections for the win...
+		
+		// The Original Project has it polling either roadside
+		// infrastructure or a tracking vehicle that keeps track of
+		// platoon order. I believe this to be infeasible at
+		// present due to infrastructure and tecnological
+		// limitations, so I will implement using GPS.
+		
+
+		
+		// SERVER side calculation preferred rather than passing a
+		// GPS and vector direction
+		platoonPublicKey = ServerDemo.joinPlatoon(coordOld,
+				coordCurrent, pub);
+		
+		return defaultValue;
+	}
+	
+	/** Private method using GPS data to do server call to find
+	 * nearest platoon
+	 * 
+	 * @param coord1
+	 *            a Point2D object of where the car was ~ 3
+	 *            seconds ago (timed in joinPlatoon Method)
+	 * @param coord20
+	 *            a Point2D object of where the car is now
+	 * @param pub
+	 *            the public key for the car that is requesting
+	 *            to join platoon. Acts as car ID.
+	 * @return Platoon Public Key */
+	
+	private Point2D pollGPS() {
+		// FIXME Random generation for the time, but will need to
+		// actually be manually set to see if it will properly join
+		// a nearby platoon.
+		Random rand = new Random();
+		
+		Point2D GPS = new Point2D.Double();
+		
+		GPS.setLocation(rand.nextDouble(), rand.nextDouble());
+		
+		return GPS;
+		
+	}
+	
+	public SpeedKey getSpeed() {
+		updateGPS();
+		
+		double distance;
+		
+		// Ok, so a distance of 1 unit lattitde/longitude = 111.2 km
+		// That is equivalent to 69.096 miles;
+		distance = coordCurrent.distance(coordOld);
+		
+		distance * GPSMILES /((timeCurrent - timeOld));
+		
+		// I have a feeling that distance on the two points will be
+		// accurate enough. Easiest improvement would be to poll
+		// speed sensor directly to account for hills.
+		
+		return null;
+	}
+	
+}

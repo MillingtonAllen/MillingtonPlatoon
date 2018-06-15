@@ -1,0 +1,8 @@
+1528756808834	Rename field 'SERVERKEY'
+1528760273037	Rename field 'servPub'
+1528761265839	Rename local variable 'currentCoordinates'
+1528763478019	Delete element
+1528799880960	Rename type 'Demo'
+1528802499972	Rename method 'UpdateGPSandTime'
+1528802510643	Rename method 'UpdateGPS'
+1528807178093	Rename field 'data'

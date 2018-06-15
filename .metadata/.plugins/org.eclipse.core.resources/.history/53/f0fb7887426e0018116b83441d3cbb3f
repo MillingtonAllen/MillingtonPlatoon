@@ -1,0 +1,62 @@
+
+/**
+ * Block based on
+ * medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eed3cb03fa
+ */
+
+import java.util.Date;
+
+public class Block {
+	
+	// TODO change back to private after testing
+	private String hash; // holds digital signature
+	private String previousHash;
+	private double speedData; // holds data
+	
+	private long timestamp;
+	
+	// Block constructor
+	public Block(double speedData, String previousHash) {
+		this.speedData = speedData;
+		this.previousHash = previousHash;
+		this.timestamp = new Date().getTime();
+		
+		this.hash = calculateHash(); // Last step
+	}
+	
+	private String calculateHash() {
+		String calculatedhash = StringUtil.applySha256(
+				previousHash + Long.toString(timestamp) + speedData);
+		return calculatedhash;
+	}
+	
+	public String getPreviousHash() {
+		return previousHash;
+	}
+	
+	public Object getHash() {
+		return hash;
+	}
+	
+
+	public boolean verifyHash() {
+		// Signature checking step
+		
+		/* In the signature checking step, the PC will compare the
+		 * hash value that is calculated from the first and second
+		 * part of an incoming transaction with its signature. */
+		
+		// Easiest way is just going to create a new block using the
+		// data from the incoming transaction, then compare
+		// hashes... Nope, timestamps... *sigh*
+		// Create a new Block constructor that takes block as an
+		// arguemnt and doesn't update the timestamp.
+		
+		Block testBlock = new Block(this.speedData,
+				this.previousHash);
+		
+		return (testBlock.hash.equals(this.hash));
+		
+	}
+	
+}
